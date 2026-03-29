@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Shopping System</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --panel: #111118;
+    --border: #1e1e2e;
+    --border-bright: #2e2e4e;
+    --accent: #00e5a0;
+    --accent2: #ff6b35;
+    --accent3: #7b61ff;
+    --text: #e8e8f0;
+    --muted: #6b6b88;
+    --danger: #ff4466;
+    --gold: #ffd060;
+    --card-bg: #14141f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 40px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+  }
+
+  .header-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    line-height: 0.9;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.2);
+    padding: 4px 10px;
+    border-radius: 2px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* LAYOUT */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 800px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .header-logo { font-size: 48px; }
+  }
+
+  /* PANEL */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .panel-header .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  .panel-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .panel-body { padding: 20px; }
+
+  /* BUDGET INPUT */
+  .budget-display {
+    background: var(--card-bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .budget-display::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+  }
+
+  .budget-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .budget-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .budget-slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: var(--border-bright);
+    border-radius: 2px;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0,229,160,0.5);
+    transition: box-shadow 0.2s;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 20px rgba(0,229,160,0.8);
+  }
+
+  .slider-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+  }
+
+  /* FORM */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 70px;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: end;
+  }
+
+  .field-group label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  input[type="text"], input[type="number"], select {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0,229,160,0.1);
+  }
+
+  select option { background: var(--card-bg); }
+
+  .cat-select {
+    grid-column: span 3;
+  }
+
+  /* PRIORITY PICKER */
+  .priority-wrap {
+    display: flex;
+    gap: 4px;
+  }
+
+  .priority-btn {
+    flex: 1;
+    padding: 8px 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 3px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .priority-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .priority-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 500; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-add {
+    background: rgba(0,229,160,0.1);
+    border: 1px solid rgba(0,229,160,0.3);
+    color: var(--accent);
+    width: 100%;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  .btn-add:hover {
+    background: rgba(0,229,160,0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 16px rgba(0,229,160,0.2);
+  }
+
+  .btn-solve {
+    background: linear-gradient(135deg, var(--accent), #00c87a);
+    color: #000;
+    font-weight: 700;
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+    font-size: 13px;
+    margin-top: 16px;
+    box-shadow: 0 4px 20px rgba(0,229,160,0.3);
+  }
+
+  .btn-solve:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(0,229,160,0.4);
+  }
+
+  .btn-solve:active { transform: translateY(0); }
+
+  .btn-csv {
+    background: rgba(123,97,255,0.1);
+    border: 1px solid rgba(123,97,255,0.3);
+    color: var(--accent3);
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .btn-csv:hover { background: rgba(123,97,255,0.2); border-color: var(--accent3); }
+
+  /* WISHLIST TABLE */
+  .wishlist-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .wishlist-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .wishlist-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .wishlist-table tr:last-child td { border-bottom: none; }
+
+  .wishlist-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .item-name-cell { font-weight: 500; }
+
+  .cat-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin-left: 6px;
+  }
+
+  .cat-necessity { background: rgba(255,107,53,0.15); color: var(--accent2); border: 1px solid rgba(255,107,53,0.3); }
+  .cat-luxury    { background: rgba(123,97,255,0.15); color: var(--accent3); border: 1px solid rgba(123,97,255,0.3); }
+  .cat-other     { background: rgba(107,107,136,0.15); color: var(--muted); border: 1px solid var(--border-bright); }
+
+  .priority-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+
+  .remove-btn:hover { color: var(--danger); }
+
+  /* RESULTS */
+  .results-area { display: none; }
+  .results-area.visible { display: block; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .stat-card.green::before { background: var(--accent); }
+  .stat-card.orange::before { background: var(--accent2); }
+  .stat-card.purple::before { background: var(--accent3); }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .stat-card.green .stat-value { color: var(--accent); }
+  .stat-card.orange .stat-value { color: var(--accent2); }
+  .stat-card.purple .stat-value { color: var(--accent3); }
+
+  /* CART / EXCLUDED GRID */
+  .dual-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 600px) { .dual-grid { grid-template-columns: 1fr; } }
+
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    transition: transform 0.15s;
+    animation: slideIn 0.3s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .result-item.selected {
+    background: rgba(0,229,160,0.06);
+    border: 1px solid rgba(0,229,160,0.2);
+  }
+
+  .result-item.excluded {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    opacity: 0.6;
+  }
+
+  .result-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .selected .result-icon { background: rgba(0,229,160,0.15); }
+  .excluded .result-icon { background: rgba(255,255,255,0.05); filter: grayscale(1); }
+
+  .result-name {
+    font-weight: 500;
+    font-size: 13px;
+    flex: 1;
+  }
+
+  .result-meta {
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+  }
+
+  .result-price { color: var(--text); }
+  .result-score { color: var(--muted); font-size: 10px; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--muted);
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-text { font-size: 13px; font-family: 'DM Mono', monospace; }
+
+  /* WELCOME STATE */
+  .welcome-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 48px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .welcome-panel::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,160,0.08), transparent 70%);
+    pointer-events: none;
+  }
+
+  .welcome-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+
+  .welcome-desc {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+    max-width: 320px;
+    margin: 0 auto 24px;
+  }
+
+  .steps-list {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .step {
+    background: var(--card-bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 14px 16px;
+    width: 140px;
+    text-align: center;
+  }
+
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .step-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  /* DP TABLE VIZ */
+  .dp-section { margin-top: 20px; }
+  .dp-toggle {
+    background: none;
+    border: 1px solid var(--border-bright);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .dp-toggle:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  .dp-table-wrap {
+    display: none;
+    margin-top: 14px;
+    overflow-x: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+  }
+
+  .dp-table-wrap.open { display: block; }
+
+  .dp-table {
+    border-collapse: collapse;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    min-width: 100%;
+  }
+
+  .dp-table th, .dp-table td {
+    border: 1px solid var(--border);
+    padding: 5px 8px;
+    text-align: center;
+    min-width: 32px;
+  }
+
+  .dp-table th { color: var(--muted); background: rgba(255,255,255,0.02); }
+  .dp-table td { color: var(--text); }
+  .dp-table td.highlight { color: var(--accent); background: rgba(0,229,160,0.06); }
+  .dp-table td.selected-path { color: var(--gold); background: rgba(255,208,96,0.06); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 12px 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    z-index: 999;
+    transform: translateY(80px);
+    transition: transform 0.3s ease;
+    max-width: 280px;
+  }
+
+  .toast.show { transform: translateY(0); }
+  .toast.error { border-color: var(--danger); color: var(--danger); }
+  .toast.success { border-color: var(--accent); color: var(--accent); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+
+  /* CSV import hidden */
+  #csvInput { display: none; }
+
+  .constraint-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .toggle-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-bright);
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .toggle-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 36px; height: 20px;
+    cursor: pointer;
+  }
+
+  .toggle-switch input { display: none; }
+
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border-bright);
+    border-radius: 10px;
+    transition: background 0.2s;
+  }
+
+  .toggle-switch input:checked ~ .toggle-track { background: var(--accent3); }
+
+  .toggle-thumb {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: white;
+    transition: left 0.2s;
+  }
+
+  .toggle-switch input:checked ~ .toggle-thumb { left: 19px; }
+
+  .weight-field { display: none; }
+  .weight-field.visible { display: block; }
+
+  .necessity-warning {
+    display: none;
+    background: rgba(255,107,53,0.08);
+    border: 1px solid rgba(255,107,53,0.3);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--accent2);
+    font-family: 'DM Mono', monospace;
+    margin-top: 10px;
+  }
+
+  .necessity-warning.visible { display: block; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div>
+      <div class="header-tag">v1.0 · Knapsack Engine</div>
+      <div class="header-logo">Smart<br>Cart</div>
+    </div>
+    <div>
+      <div class="header-sub">// 0/1 Knapsack · Dynamic Programming · Budget Optimizer</div>
+      <div class="header-sub">// Add items → Set budget → Get optimal shopping list</div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+
+    <!-- LEFT: INPUT PANEL -->
+    <div>
+      <!-- Budget -->
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-header">
+          <div class="dot" style="background:var(--accent)"></div>
+          <span class="panel-title">Budget Configuration</span>
+        </div>
+        <div class="panel-body">
+          <div class="budget-display">
+            <div class="budget-label">Total Budget</div>
+            <div class="budget-value" id="budgetDisplay">$100</div>
+            <div class="budget-slider-wrap">
+              <span class="slider-label">$10</span>
+              <input type="range" id="budgetSlider" min="10" max="1000" step="5" value="100" oninput="updateBudget(this.value)">
+              <span class="slider-label">$1K</span>
+            </div>
+          </div>
+
+          <!-- Constraints toggles -->
+          <div class="toggle-group">
+            <span class="toggle-label">Necessity Guarantee</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="necessityToggle">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+
+          <div class="toggle-group">
+            <span class="toggle-label">Weight Limit</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="weightToggle" onchange="toggleWeightField()">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+
+          <div class="weight-field" id="weightFieldWrap">
+            <div class="field-group">
+              <label>Max Weight (kg)</label>
+              <input type="number" id="maxWeightInput" value="10" min="1" step="0.5">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Items -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="dot" style="background:var(--accent2)"></div>
+          <span class="panel-title">Wishlist Builder</span>
+        </div>
+        <div class="panel-body">
+          <div class="form-row">
+            <div class="field-group">
+              <label>Item Name</label>
+              <input type="text" id="itemName" placeholder="e.g. Wireless Mouse" />
+            </div>
+            <div class="field-group">
+              <label>Price ($)</label>
+              <input type="number" id="itemPrice" placeholder="30" min="1" />
+            </div>
+            <div class="field-group" id="weightInputGroup" style="display:none">
+              <label>Weight (kg)</label>
+              <input type="number" id="itemWeight" placeholder="0.5" min="0.1" step="0.1" />
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom:10px">
+            <label>Category</label>
+            <select id="itemCategory">
+              <option value="other">⚪ General</option>
+              <option value="necessity">🟠 Necessity</option>
+              <option value="luxury">🟣 Luxury</option>
+            </select>
+          </div>
+
+          <div class="field-group" style="margin-bottom:0">
+            <label>Priority Score (1 – 10)</label>
+            <div class="priority-wrap" id="priorityPicker">
+              <!-- filled by JS -->
+            </div>
+          </div>
+
+          <button class="btn btn-add" onclick="addItem()">＋ Add to Wishlist</button>
+          <label class="btn btn-csv" style="cursor:pointer" for="csvInput">⬆ Import CSV</label>
+          <input type="file" id="csvInput" accept=".csv" onchange="handleCSV(event)">
+
+          <!-- Wishlist table -->
+          <div id="wishlistWrap" style="margin-top:16px; display:none">
+            <table class="wishlist-table" id="wishlistTable">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Price</th>
+                  <th>Pri.</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="wishlistBody"></tbody>
+            </table>
+          </div>
+
+          <button class="btn btn-solve" onclick="solve()">⚡ Optimize Cart</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: OUTPUT PANEL -->
+    <div id="rightPanel">
+
+      <!-- Welcome state -->
+      <div class="welcome-panel" id="welcomePanel">
+        <div class="welcome-title">Budget Optimizer</div>
+        <div class="welcome-desc">
+          Add items to your wishlist, set a budget, and let the 0/1 Knapsack algorithm find the mathematically perfect shopping cart.
+        </div>
+        <div class="steps-list">
+          <div class="step"><div class="step-num">01</div><div class="step-desc">Set your total budget</div></div>
+          <div class="step"><div class="step-num">02</div><div class="step-desc">Add items with price & priority</div></div>
+          <div class="step"><div class="step-num">03</div><div class="step-desc">Click Optimize Cart</div></div>
+        </div>
+      </div>
+
+      <!-- Results (hidden until solve) -->
+      <div class="results-area" id="resultsArea">
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card green">
+            <div class="stat-label">Utility Score</div>
+            <div class="stat-value" id="statScore">0</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-label">Total Spent</div>
+            <div class="stat-value" id="statSpent">$0</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-label">Leftover</div>
+            <div class="stat-value" id="statLeftover">$0</div>
+          </div>
+        </div>
+
+        <div id="necessityWarning" class="necessity-warning">
+          ⚠ No necessity items fit in budget — constraint relaxed
+        </div>
+
+        <!-- Dual cart -->
+        <div class="dual-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="dot" style="background:var(--accent)"></div>
+              <span class="panel-title">Smart Cart ✓</span>
+            </div>
+            <div class="panel-body" id="cartBody">
+              <div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-text">Nothing selected yet</div></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="dot" style="background:var(--muted)"></div>
+              <span class="panel-title">Excluded Items ✗</span>
+            </div>
+            <div class="panel-body" id="excludedBody">
+              <div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">All items fit!</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DP Table -->
+        <div class="dp-section">
+          <button class="dp-toggle" onclick="toggleDP()">▸ Show DP Matrix</button>
+          <div class="dp-table-wrap" id="dpTableWrap"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let items = [];
+let selectedPriority = 5;
+let dpTableData = null;
+let dpOpen = false;
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+(function init() {
+  buildPriorityPicker();
+  // seed some demo items
+  const demos = [
+    { name: "Wireless Mouse",    price: 30, priority: 8, category: "other",     weight: 0.2, emoji: "🖱" },
+    { name: "Programming Book",  price: 45, priority: 9, category: "necessity", weight: 0.8, emoji: "📘" },
+    { name: "Noise Headphones",  price: 80, priority: 7, category: "luxury",    weight: 0.3, emoji: "🎧" },
+    { name: "USB-C Hub",         price: 25, priority: 6, category: "other",     weight: 0.1, emoji: "🔌" },
+    { name: "Desk Lamp",         price: 35, priority: 5, category: "necessity", weight: 1.2, emoji: "💡" },
+    { name: "Mechanical Keyboard",price:70, priority: 8, category: "luxury",    weight: 1.0, emoji: "⌨" },
+  ];
+  demos.forEach(d => items.push(d));
+  renderWishlist();
+})();
+
+function buildPriorityPicker() {
+  const wrap = document.getElementById('priorityPicker');
+  wrap.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'priority-btn' + (i === selectedPriority ? ' active' : '');
+    btn.textContent = i;
+    btn.type = 'button';
+    btn.onclick = () => {
+      selectedPriority = i;
+      wrap.querySelectorAll('.priority-btn').forEach((b, idx) => {
+        b.classList.toggle('active', idx + 1 === i);
+      });
+    };
+    wrap.appendChild(btn);
+  }
+}
+
+// ─── BUDGET ──────────────────────────────────────────────────────────────────
+function updateBudget(val) {
+  document.getElementById('budgetDisplay').textContent = '$' + val;
+}
+
+// ─── WEIGHT TOGGLE ────────────────────────────────────────────────────────────
+function toggleWeightField() {
+  const on = document.getElementById('weightToggle').checked;
+  document.getElementById('weightFieldWrap').classList.toggle('visible', on);
+  document.getElementById('weightInputGroup').style.display = on ? 'block' : 'none';
+}
+
+// ─── ADD ITEM ─────────────────────────────────────────────────────────────────
+function addItem() {
+  const name     = document.getElementById('itemName').value.trim();
+  const price    = parseFloat(document.getElementById('itemPrice').value);
+  const category = document.getElementById('itemCategory').value;
+  const weightOn = document.getElementById('weightToggle').checked;
+  const weight   = weightOn ? parseFloat(document.getElementById('itemWeight').value) : 1;
+
+  if (!name)           return toast('Item name is required', 'error');
+  if (!price || price <= 0) return toast('Price must be a positive number', 'error');
+  if (weightOn && (!weight || weight <= 0)) return toast('Weight must be positive', 'error');
+
+  const emojis = { necessity: '🟠', luxury: '🟣', other: '⚪' };
+  items.push({ name, price, priority: selectedPriority, category, weight, emoji: emojis[category] });
+  renderWishlist();
+
+  document.getElementById('itemName').value = '';
+  document.getElementById('itemPrice').value = '';
+  toast('"' + name + '" added to wishlist', 'success');
+}
+
+// ─── REMOVE ITEM ──────────────────────────────────────────────────────────────
+function removeItem(idx) {
+  items.splice(idx, 1);
+  renderWishlist();
+}
+
+// ─── RENDER WISHLIST ─────────────────────────────────────────────────────────
+function renderWishlist() {
+  const wrap = document.getElementById('wishlistWrap');
+  const body = document.getElementById('wishlistBody');
+  if (!items.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+
+  body.innerHTML = items.map((item, i) => {
+    const colors = { necessity:'var(--accent2)', luxury:'var(--accent3)', other:'var(--muted)' };
+    const bgColors = { necessity:'rgba(255,107,53,0.12)', luxury:'rgba(123,97,255,0.12)', other:'rgba(107,107,136,0.12)' };
+    return `<tr>
+      <td class="item-name-cell">
+        ${item.name}
+        <span class="cat-badge cat-${item.category}">${item.category}</span>
+      </td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">$${item.price}</td>
+      <td>
+        <div class="priority-pill" style="background:${bgColors[item.category]};color:${colors[item.category]}">${item.priority}</div>
+      </td>
+      <td><button class="remove-btn" onclick="removeItem(${i})">×</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── CSV IMPORT ───────────────────────────────────────────────────────────────
+function handleCSV(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const lines = ev.target.result.split('\n').slice(1); // skip header
+    let added = 0;
+    lines.forEach(line => {
+      const parts = line.split(',').map(s => s.trim().replace(/"/g,''));
+      if (parts.length < 3) return;
+      const [name, price, priority, category, weight] = parts;
+      const p = parseFloat(price), pr = parseInt(priority);
+      if (!name || isNaN(p) || p <= 0) return;
+      const pri = isNaN(pr) ? 5 : Math.max(1, Math.min(10, pr));
+      const cat = ['necessity','luxury','other'].includes(category) ? category : 'other';
+      const emojis = { necessity:'🟠', luxury:'🟣', other:'⚪' };
+      items.push({ name, price: p, priority: pri, category: cat, weight: parseFloat(weight)||1, emoji: emojis[cat] });
+      added++;
+    });
+    renderWishlist();
+    toast(`Imported ${added} items from CSV`, 'success');
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ─── KNAPSACK SOLVER ─────────────────────────────────────────────────────────
+function knapsack01(items, W) {
+  const n = items.length;
+  // Build DP table
+  const dp = Array.from({length: n+1}, () => new Array(W+1).fill(0));
+
+  for (let i = 1; i <= n; i++) {
+    const cost = Math.round(items[i-1].price);
+    const val  = items[i-1].priority;
+    for (let w = 0; w <= W; w++) {
+      dp[i][w] = dp[i-1][w]; // skip item
+      if (cost <= w) {
+        dp[i][w] = Math.max(dp[i][w], dp[i-1][w-cost] + val);
+      }
+    }
+  }
+
+  // Backtrack to find selected items
+  let w = W;
+  const selected = new Array(n).fill(false);
+  for (let i = n; i >= 1; i--) {
+    if (dp[i][w] !== dp[i-1][w]) {
+      selected[i-1] = true;
+      w -= Math.round(items[i-1].price);
+    }
+  }
+
+  return { dp, selected, maxVal: dp[n][W] };
+}
+
+// Multi-constraint knapsack (budget + weight)
+function knapsack2D(items, W, maxWt) {
+  const n = items.length;
+  const WW = Math.round(maxWt * 10); // use 0.1kg resolution
+  const dp = Array.from({length: n+1}, () =>
+    Array.from({length: W+1}, () => new Array(WW+1).fill(0))
+  );
+
+  for (let i = 1; i <= n; i++) {
+    const cost = Math.round(items[i-1].price);
+    const wt   = Math.round(items[i-1].weight * 10);
+    const val  = items[i-1].priority;
+    for (let b = 0; b <= W; b++) {
+      for (let ww = 0; ww <= WW; ww++) {
+        dp[i][b][ww] = dp[i-1][b][ww];
+        if (cost <= b && wt <= ww) {
+          dp[i][b][ww] = Math.max(dp[i][b][ww], dp[i-1][b-cost][ww-wt] + val);
+        }
+      }
+    }
+  }
+
+  let b = W, ww = WW;
+  const selected = new Array(n).fill(false);
+  for (let i = n; i >= 1; i--) {
+    if (dp[i][b][ww] !== dp[i-1][b][ww]) {
+      selected[i-1] = true;
+      b  -= Math.round(items[i-1].price);
+      ww -= Math.round(items[i-1].weight * 10);
+    }
+  }
+
+  return { selected, maxVal: dp[n][W][WW], dp: null };
+}
+
+// ─── SOLVE ───────────────────────────────────────────────────────────────────
+function solve() {
+  if (!items.length) return toast('Add at least one item first', 'error');
+
+  const budget       = parseInt(document.getElementById('budgetSlider').value);
+  const weightOn     = document.getElementById('weightToggle').checked;
+  const necessityOn  = document.getElementById('necessityToggle').checked;
+  const maxWt        = parseFloat(document.getElementById('maxWeightInput').value) || 10;
+
+  let selected, maxVal, dp = null;
+
+  if (weightOn) {
+    const result = knapsack2D(items, budget, maxWt);
+    selected = result.selected; maxVal = result.maxVal;
+  } else {
+    const result = knapsack01(items, budget);
+    selected = result.selected; maxVal = result.maxVal; dp = result.dp;
+  }
+
+  // Necessity constraint: ensure at least one necessity item in cart
+  let necessityWarning = false;
+  if (necessityOn) {
+    const necessityItems  = items.map((it, i) => ({...it, idx: i})).filter(it => it.category === 'necessity');
+    const hasNecessity    = necessityItems.some(it => selected[it.idx]);
+    if (!hasNecessity && necessityItems.length > 0) {
+      // Try forcing each necessity item and pick best result
+      let bestVal = -1, bestSelected = selected;
+      necessityItems.forEach(nit => {
+        if (nit.price > budget) return;
+        const remaining = budget - nit.price;
+        const subItems  = items.filter((_, i) => i !== nit.idx);
+        const sub = knapsack01(subItems, remaining);
+        const total = sub.maxVal + nit.priority;
+        if (total > bestVal) {
+          bestVal = total;
+          // reconstruct selected
+          const newSel = new Array(items.length).fill(false);
+          newSel[nit.idx] = true;
+          let si = 0;
+          items.forEach((_, i) => {
+            if (i === nit.idx) return;
+            if (sub.selected[si]) newSel[i] = true;
+            si++;
+          });
+          bestSelected = newSel;
+          maxVal = total;
+        }
+      });
+      if (bestVal > -1) selected = bestSelected;
+      else necessityWarning = true;
+    }
+  }
+
+  // Calculate stats
+  const totalCost = items.reduce((s, it, i) => selected[i] ? s + it.price : s, 0);
+  const leftover  = budget - totalCost;
+
+  dpTableData = dp;
+
+  // Show results
+  document.getElementById('welcomePanel').style.display = 'none';
+  document.getElementById('resultsArea').classList.add('visible');
+  document.getElementById('necessityWarning').classList.toggle('visible', necessityWarning);
+
+  document.getElementById('statScore').textContent   = maxVal;
+  document.getElementById('statSpent').textContent   = '$' + totalCost;
+  document.getElementById('statLeftover').textContent = '$' + leftover.toFixed(0);
+
+  const cartBody     = document.getElementById('cartBody');
+  const excludedBody = document.getElementById('excludedBody');
+
+  const selectedItems = items.filter((_, i) => selected[i]);
+  const excludedItems = items.filter((_, i) => !selected[i]);
+
+  cartBody.innerHTML = selectedItems.length
+    ? selectedItems.map((it, ii) => renderResultItem(it, true, ii * 60)).join('')
+    : '<div class="empty-state"><div class="empty-icon">😕</div><div class="empty-text">No items fit budget</div></div>';
+
+  excludedBody.innerHTML = excludedItems.length
+    ? excludedItems.map((it, ii) => renderResultItem(it, false, ii * 50)).join('')
+    : '<div class="empty-state"><div class="empty-icon">🎉</div><div class="empty-text">All items fit!</div></div>';
+
+  // Reset DP visibility
+  dpOpen = false;
+  document.getElementById('dpTableWrap').classList.remove('open');
+  document.querySelector('.dp-toggle').textContent = '▸ Show DP Matrix';
+
+  if (!weightOn && dp) renderDPTable(dp, items, budget, selected);
+  document.querySelector('.dp-section').style.display = (!weightOn && dp) ? '' : 'none';
+
+  toast('Optimization complete!', 'success');
+}
+
+function renderResultItem(item, isSelected, delay) {
+  return `
+  <div class="result-item ${isSelected ? 'selected' : 'excluded'}" style="animation-delay:${delay}ms">
+    <div class="result-icon">${item.emoji}</div>
+    <div class="result-name">${item.name}<br><span class="cat-badge cat-${item.category}">${item.category}</span></div>
+    <div class="result-meta">
+      <div class="result-price">$${item.price}</div>
+      <div class="result-score">⭐ ${item.priority}/10</div>
+    </div>
+  </div>`;
+}
+
+// ─── DP TABLE RENDER ─────────────────────────────────────────────────────────
+function renderDPTable(dp, items, budget, selected) {
+  // Show only every N columns to keep it readable
+  const cols = Math.min(budget, 30);
+  const step = Math.max(1, Math.floor(budget / cols));
+  const colBudgets = [];
+  for (let w = 0; w <= budget; w += step) colBudgets.push(w);
+  if (colBudgets[colBudgets.length-1] !== budget) colBudgets.push(budget);
+
+  const n = items.length;
+
+  let html = '<table class="dp-table"><thead><tr><th>Item \\ Budget</th>';
+  colBudgets.forEach(w => html += `<th>$${w}</th>`);
+  html += '</tr></thead><tbody>';
+
+  for (let i = 0; i <= n; i++) {
+    html += `<tr><td style="color:var(--muted);text-align:left;padding-left:6px">${i === 0 ? '∅' : items[i-1].name.slice(0,10)}</td>`;
+    colBudgets.forEach(w => {
+      const val = dp[i][w];
+      const isMax = (i === n && w === budget);
+      html += `<td class="${isMax ? 'highlight' : ''}">${val}</td>`;
+    });
+    html += '</tr>';
+  }
+
+  html += '</tbody></table>';
+  html += '<div style="margin-top:10px;font-family:DM Mono,monospace;font-size:10px;color:var(--muted)">Showing every ~$' + step + ' budget increment. <span style="color:var(--accent)">Highlighted</span> = maximum utility found.</div>';
+
+  document.getElementById('dpTableWrap').innerHTML = html;
+}
+
+function toggleDP() {
+  dpOpen = !dpOpen;
+  document.getElementById('dpTableWrap').classList.toggle('open', dpOpen);
+  document.querySelector('.dp-toggle').textContent = dpOpen ? '▾ Hide DP Matrix' : '▸ Show DP Matrix';
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + type + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
